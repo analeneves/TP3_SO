@@ -1,18 +1,31 @@
--> Para compilar utilize do comando make
--> Para executar digite ./main
+#Para compilar utilize do comando 
+make
 
-Feito isso, o usuário deve digitar init ou load para iniciar o sistema de arquivos;
+#Para executar digite 
+./main
 
-Os comandos disponíveis no trabalho são os especificados na documentação disponibilizada no Campus Virtual:
+#Feito isso, o usuário deve digitar init ou load para iniciar o sistema de arquivos;
 
--> init
--> load
--> ls /caminho/diretorio
--> mkdir /caminho/diretorio
--> create /caminho/diretorio
--> unlink /caminho/diretorio
--> write /caminho/diretorio
+
+#Os comandos disponíveis no trabalho são os especificados na documentação disponibilizada no Campus Virtual:
+
+
+init
+
+load
+
+ls /caminho/diretorio
+
+mkdir /caminho/diretorio
+
+create /caminho/diretorio
+
+unlink /caminho/diretorio
+
+write /caminho/diretorio
     quando esta for selecionada, abrirá uma opção para o usuário escrever o que deseja no arquivo
--> append /caminho/diretorio
+
+append /caminho/diretorio
     quando for selecionada, abrirá uma opção para o usuário escrever o que deseja anexar ao arquivo
--> read /caminho/diretorio
+
+read /caminho/diretorio
