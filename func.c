@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <time.h>
 
 #define SECTOR_SIZE	512 //definição tamanho setor 
 #define CLUSTER_SIZE	2*SECTOR_SIZE //tamanho do cluster = 2*tam setor
@@ -8,6 +9,9 @@
 #define CLUSTER_NUM	4096 //numero de cluster
 #define FAT_NAME	"fat.part" //nome da fat, definido na doc
 
+
+clock_t tempo;
+//tempo = clock();
 
 /*DECLARAÇÃO DE DADOS*/
 struct _dir_entry_t{
@@ -87,7 +91,7 @@ int carregaFat(void){
 	arqFAT = fopen(FAT_NAME, "rb");
 	//Caso não exista o arquivo fat.part
 	if(arqFAT == NULL){
-		printf("Fat não achada, use o comando init para inicia-la \n");
+		printf("FAT não encontrada! Utilize o comando init para inicializá-la!\n");
 		return 0;
 	}else{
 	//Caso exista carrega a fat
@@ -244,11 +248,11 @@ void ls(char* caminho)
 	if (cluster){
 		for (i = 0; i < 32; ++i){
 			if (cluster->dir[i].attributes == 1 || cluster->dir[i].attributes == 2)
-				printf("%s\n", cluster->dir[i].filename);
+				printf("Arquivos:%s\n", cluster->dir[i].filename);
 		}
 	}
 	else
-		printf("caminho não encontrado\n");
+		printf("Caminho não encontrado! Tente novamente!\n");
 }
 
 /*FUNÇÃO PARA CRIAR UM DIRETORIO*/
@@ -273,7 +277,7 @@ void mkdir(char* caminho)
 		}
 	}
 	else
-		printf("caminho não encontrado\n");
+		printf("Caminho não encontrado! Tente novamente!\n");
 }
 
 /*FUNÇÃO QUE RETORNA (1) CASO TENHA ALGUM DIRETORIO
@@ -315,7 +319,7 @@ void create(char* caminho)
 		}
 	}
 	else
-			printf("caminho não encontrado\n");
+			printf("Caminho não encontrado! Tente novamente!\n");
 }
 
 /*FUNÇÃO PARA REMOVER UM ARQUIVO OU DIRETORIO*/
@@ -328,7 +332,7 @@ void unlink(char* caminho)
 	encontraPrincipal(clusterDoRoot, caminho, &enderecoRoot);
 	data_cluster* cluster = carregaFatCluster(enderecoRoot);
 	if(temFilho(caminho) == 1){
-	printf("Não é possível excluir pois não está vazio");
+	printf("Não é possível excluir! O diretório precisa estar vazio! Tente novamente\n");
 	}else{
 		if (cluster != NULL) {
 			char* name = pegaNome(caminho);
@@ -344,7 +348,7 @@ void unlink(char* caminho)
 				}
 			}
 		}else{
-			printf("Arquivo não encontrado\n");
+			printf("Arquivo não encontrado, tente novamente!\n");
 		}
 	}
 
@@ -362,7 +366,7 @@ void write(char* caminho, char* content)
 		escreveCluster(enderecoRoot, cluster);
 	}
 	else
-		printf("caminho não encontrado\n");
+		printf("Caminho não encontrado, tente novamente!\n");
 
 }
 
@@ -382,7 +386,7 @@ void append(char* caminho, char* content)
 	}
 
 	else
-		printf("Arquivo não encontrado\n");
+		printf("Arquivo não encontrado, tente novamente!\n");
 
 }
 
@@ -393,11 +397,13 @@ void read(char* caminho)
 	int enderecoRoot = 9;
 	data_cluster* clusterDoRoot = carregaFatCluster(9);
 	data_cluster* cluster = encontra(clusterDoRoot, caminho, &enderecoRoot);
-	if (cluster)
+	if (cluster){
 		printf("%s\n", cluster->data);
+		printf("Tempo:%f\n",(clock() - tempo) / (double)CLOCKS_PER_SEC);
 
-	else
-		printf("Arquivo não encontrado\n");
+	}else{
+		printf("Arquivo não encontrado, tente novamente!\n");
+}
 }
 
 /*FUNÇÃO SHELL, QUE UNE TODAS EM UMA*/
@@ -412,7 +418,7 @@ void shell(void)
 	char *comandoDigitado;
 	int i;
 
-	printf("Digite o comando: ");
+	printf("Digite o comando que você deseja: load, init, ls, mkdir, create, unlink, write, append ou read\n");
 	fgets(nome,4096,stdin);
 
 	strcpy(copiaDoNome,nome);
@@ -458,6 +464,7 @@ void shell(void)
 			aux2[i-7] = copiaDoNome[i];
 		}
 		unlink(aux2);
+		printf("Tempo:%f\n",(clock() - tempo) / (double)CLOCKS_PER_SEC);
 	}
 	else if ( strcmp(comandoDigitado, "write ") == 0 && copiaDoNome[6] == '/')
 	{
@@ -465,7 +472,7 @@ void shell(void)
 		{
 			aux2[i-6] = copiaDoNome[i];
 		}
-		printf("Digite o texto:\n");
+		printf("Digite o texto que será escrito no arquivo:\n");
 		fgets(nomeAux,4096,stdin);
 		write(aux2,nomeAux);
 	}
@@ -475,9 +482,10 @@ void shell(void)
 		{
 			aux2[i-7] = copiaDoNome[i];
 		}
-		printf("Digite o texto");
+		printf("Digite o texto que será anexado no arquivo:\n");
 		fgets(nomeAux,4096,stdin);
 		append(aux2,nomeAux);
+		printf("Tempo:%f\n",(clock() - tempo) / (double)CLOCKS_PER_SEC);
 	}
 	else if ( strcmp(comandoDigitado, "read ") == 0 && copiaDoNome[5] == '/')
 	{
@@ -488,8 +496,7 @@ void shell(void)
 		read(aux2);
 	}
 
-	
-	else printf("Erro no comando \n");
+	else printf("Erro, tente novamente! Verifique se escreveu o init e load corretamente.\n");
 }
 
 
